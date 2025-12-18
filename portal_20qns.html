@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ei Teacher Resource Portal</title>
+    <style>
+        :root {
+            --primary: #2c3e50; 
+            --secondary: #3498db; 
+            --accent: #e67e22; 
+            --success: #27ae60; /* Green */
+            --danger: #c0392b; /* Red (Highest Distractor & Incorrect User Selection) */
+            --neutral-wrong: #f39c12; /* Orange (Other Distractors) */
+            --header-bg: #8F2B28; /* RGB(143, 43, 40) */
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333;
+            --border-color: #ccc; /* Grey border */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.8; }
+
+        /* Controls */
+        .controls {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .controls label { font-weight: 600; color: var(--primary); }
+
+        select, input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        /* Search Bar Style */
+        #searchInput {
+            flex-grow: 1; 
+            min-width: 200px;
+        }
+
+        /* Grid Layout */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr; /* Default for top-level flow */
+            gap: 0; 
+        }
+        
+        /* Containers that hold individual cards */
+        .card-row-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Default to flexible width */
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* --- Group Container Styles --- */
+        .group-card {
+            grid-column: 1 / -1; 
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-top: 5px solid var(--header-bg);
+        }
+        
+        .passage-area {
+            padding: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .passage-content-box {
+            padding: 15px;
+            border: 1px dashed var(--accent);
+            background-color: #fffaf0;
+            margin-top: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+            min-height: 100px;
+        }
+
+        .passage-content-box p {
+            margin: 0;
+            padding: 0;
+            font-style: italic;
+        }
+        
+        /* Questions grid inside a group card (enforcing 2 columns) */
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px;
+            padding: 20px;
+        }
+
+        /* --- Card (Individual Question) --- */
+        .card {
+            background: #fdfdfd;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color); 
+            min-height: 250px; /* Helps keep height consistent */
+            box-sizing: border-box;
+        }
+        
+        /* Image Optimization */
+        .card-full-width {
+             grid-column: 1 / -1; /* Spans two columns inside the questions-grid */
+        }
+
+        /* Options List */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        /* Image Options Layout (forced horizontal or 2x2) */
+        .options-list.image-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px;
+        }
+        
+        .options-list.image-layout.grid-2x2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .option-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.1s, border-color 0.1s;
+        }
+        
+        .option-container.selected {
+            border-color: var(--secondary);
+            background-color: #e6f0fa;
+        }
+
+        .option-label { display: block; cursor: pointer; }
+        .option-label .option-text { display: inline-block; }
+        .option-label img { max-width: 100%; height: auto; display: block; margin-top: 5px; }
+
+        /* --- Revealed States --- */
+        .options-list.revealed .option-text.correct { color: var(--success); font-weight: 700; }
+        .options-list.revealed .option-text.highest-distractor { color: var(--danger); font-weight: 700; }
+        .options-list.revealed .option-text.wrong { color: var(--neutral-wrong); }
+        
+        .stats-panel p { margin: 0; line-height: 1.5; font-weight: normal; font-style: normal; }
+        .user-selection .user-choice { font-weight: bold; }
+        .user-selection .correct-ans-display { font-weight: bold; }
+        .user-selection .user-choice.correct { color: var(--success); }
+        .user-selection .user-choice.incorrect { color: var(--danger); }
+        .user-selection .correct-ans-display { color: var(--success); }
+
+        /* Interactive Footer */
+        .card-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-reveal {
+            background-color: var(--header-bg); 
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .btn-reveal:hover { background-color: #7a2523; }
+
+        .btn-skip {
+            background: none;
+            color: #777;
+            border: none;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Utility classes */
+        .meta-tags { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .group-context { background-color: #eef2f7; padding: 12px; border-radius: 4px; border-left: 4px solid var(--accent); margin-bottom: 10px; font-size: 0.95rem; }
+        .question-stem { font-weight: 600; margin-bottom: 1rem; line-height: 1.5; }
+        .question-stem img { max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;}
+        .html-content p { margin: 0; }
+        .html-content p + p { margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>Ei Teacher Resource Portal</h1>
+        <p>A collection of thought provoking questions.</p>
+    </div>
+</header>
+
+<div class="controls">
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput" onkeyup="filterQuestions()" placeholder="Type keywords from question, options, or topic...">
+
+    <label for="subjectFilter">Subject:</label>
+    <select id="subjectFilter" onchange="filterQuestions()">
+        <option value="all">All Subjects</option>
+        <option value="Science">Science</option>
+        <option value="English">English</option>
+        <option value="Maths">Maths</option>
+        <option value="Social Science">Social Science</option>
+    </select>
+    
+    <label for="classFilter">Class:</label>
+    <select id="classFilter" onchange="filterQuestions()">
+        <option value="all">All Classes</option>
+        <option value="4">Class 4</option>
+        <option value="5">Class 5</option>
+        <option value="6">Class 6</option>
+        <option value="7">Class 7</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+    </select>
+    
+    <span id="questionCount" style="margin-left: auto; font-weight: bold; color: var(--accent);"></span>
+</div>
+
+<div class="container" id="questionsContainer">
+    </div>
+
+
+<script>
+    // --- START DATA INJECTION (First 40 Questions from Batch 3) ---
+    const questionsData = [{"Qcode":"6525","Subject":"Science","Class":"4","question_stem":"Which of these lists has only living things in it?","optiona":"rivers, lakes and streams","optionb":"plants, insects and birds","optionc":"rivers, sky and soil","optiond":"animals, earthworms and soil","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":84.2482,"percent_a":5.2506,"percent_b":84.2482,"percent_c":2.6253,"percent_d":6.68258,"total_students":419},{"Qcode":"6526","Subject":"Science","Class":"4","question_stem":"Which of these has been put under the wrong heading below?<br><img src='images\/341_2_q.jpg'>","optiona":"water","optionb":"candle","optionc":"steam","optiond":"ice cube","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":80.1909,"percent_a":3.10263,"percent_b":7.8759,"percent_c":7.63723,"percent_d":80.1909,"total_students":419},{"Qcode":"6527","Subject":"Science","Class":"4","question_stem":"Here is the picture of an ant.<br><img src='images\/341_3_q.jpg'><br>When seen through <u>a magnifying glass<\/u>,<img src='images\/341_3_2_q.jpg'> it will look like:","optiona":"<img src='images\/341_3_o_A.jpg'>","optionb":"<img src='images\/341_3_o_B.jpg'>","optionc":"<img src='images\/341_3_o_C.jpg'>","optiond":"<img src='images\/341_3_o_D.jpg'>","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":87.3508,"percent_a":3.57995,"percent_b":87.3508,"percent_c":6.44391,"percent_d":1.90931,"total_students":419},{"Qcode":"6528","Subject":"Science","Class":"4","question_stem":"The earth's <u>rotation on its axis<\/u> is the reason for","optiona":"the different seasons.","optionb":"longer days in summer.","optionc":"eclipses.","optiond":"day and night.","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":69.2124,"percent_a":15.0358,"percent_b":5.48926,"percent_c":9.7852,"percent_d":69.2124,"total_students":419},{"Qcode":"6529","Subject":"Science","Class":"4","question_stem":"Which of these is an important function of the <u>roots<\/u> of a plant?","optiona":"to absorb oxygen from the atmosphere","optionb":"to absorb carbon dioxide from the soil","optionc":"to absorb water and minerals from the soil","optiond":"to transport water and minerals to different parts of the plant","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":63.7232,"percent_a":6.44391,"percent_b":6.68258,"percent_c":63.7232,"percent_d":21.4797,"total_students":419},{"Qcode":"6532","Subject":"Science","Class":"4","question_stem":"Which of the following is an example of water existing in solid state?","optiona":"steam","optionb":"rain","optionc":"snow","optiond":"cloud","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":58.9499,"percent_a":5.01193,"percent_b":9.06921,"percent_c":58.9499,"percent_d":25.7757,"total_students":419},{"Qcode":"6536","Subject":"Science","Class":"4","question_stem":"Which of these will happen if there is NO sun?","optiona":"We will have no rain.","optionb":"It will be dark and cold.","optionc":"Plants will die.","optiond":"All of the above.","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":68.7351,"percent_a":1.67064,"percent_b":12.4105,"percent_c":15.7518,"percent_d":68.7351,"total_students":419},{"Qcode":"6537","Subject":"Science","Class":"4","question_stem":"What causes day and night on the Earth?","optiona":"The sun moves around the earth.","optionb":"The earth moves around the sun.","optionc":"The earth spins on its axis.","optiond":"The earth moves around the moon.","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":39.3795,"percent_a":14.0811,"percent_b":39.3795,"percent_c":39.3795,"percent_d":5.72792,"total_students":419},{"Qcode":"6538","Subject":"Science","Class":"4","question_stem":"In which of these is the energy of the wind being used?<br><img src='images\/341_14_q.jpg'>","optiona":"only 2","optionb":"only 3","optionc":"only 1 and 3","optiond":"only 2 and 3","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":69.9284,"percent_a":5.01193,"percent_b":8.59189,"percent_c":69.9284,"percent_d":15.0358,"total_students":419},{"Qcode":"6540","Subject":"Science","Class":"4","question_stem":"Some parts of the body are shown here. Which of them does NOT grow after a person becomes an adult?<br><img src='images\/341_16_q.jpg'>","optiona":"teeth","optionb":"nails","optionc":"hair","optiond":"skin","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":75.6563,"percent_a":75.6563,"percent_b":6.92124,"percent_c":7.39857,"percent_d":7.8759,"total_students":419},{"Qcode":"6543","Subject":"Science","Class":"4","question_stem":"The table below shows some properties of 3 substances P, Q and R.<br><img src='images\/341_19_q.jpg'><br>Which of these could be WOOD?","optiona":"only P","optionb":"only Q","optionc":"only R","optiond":"only P and Q","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":52.9833,"percent_a":52.9833,"percent_b":8.83055,"percent_c":21.2411,"percent_d":15.0358,"total_students":419},{"Qcode":"6545","Subject":"Science","Class":"4","question_stem":"Study the flow chart below.<br><img src='images\/341_21_q.jpg'><br>Which of these is the Animal 'X'?","optiona":"bat","optionb":"spider","optionc":"ostrich","optiond":"butterfly","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":77.5656,"percent_a":9.54654,"percent_b":5.72792,"percent_c":5.96659,"percent_d":77.5656,"total_students":419},{"Qcode":"6546","Subject":"Science","Class":"4","question_stem":"Which of the following is NOT a planet of the sun?","optiona":"Mars","optionb":"Moon","optionc":"Earth","optiond":"Saturn","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":64.9165,"percent_a":6.44391,"percent_b":64.9165,"percent_c":17.4224,"percent_d":10.0239,"total_students":419},{"Qcode":"6548","Subject":"Science","Class":"4","question_stem":"Which of these will change its shape when pressed by hand?","optiona":"a steel spoon","optionb":"a wooden block","optionc":"an orange","optiond":"a glass bangle","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":79.7136,"percent_a":3.10263,"percent_b":7.63723,"percent_c":79.7136,"percent_d":7.39857,"total_students":419},{"Qcode":"6550","Subject":"Science","Class":"4","question_stem":"Some animals are shown below.<br><img src='images\/341_26_q.jpg'><br>Which of these animals are insects?","optiona":"only 2, 4 and 6","optionb":"only 1, 3, 5 and 6","optionc":"only 2, 4, 5 and 6","optiond":"All of them","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":64.9165,"percent_a":64.9165,"percent_b":12.4105,"percent_c":13.6038,"percent_d":7.63723,"total_students":419},{"Qcode":"6552","Subject":"Science","Class":"4","question_stem":"Look at the picture below.<br><img src='images\/341_28_q.jpg'><br>Which of these will happen if the lit candle is covered with the jar?","optiona":"The candle will burn brighter.","optionb":"The candle will stop burning after sometime.","optionc":"The candle will burn with a blue flame.","optiond":"There will be no change in the burning of the candle.","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":69.9284,"percent_a":7.1599,"percent_b":69.9284,"percent_c":6.20525,"percent_d":15.0358,"total_students":419},{"Qcode":"6553","Subject":"Science","Class":"4","question_stem":"Look at the picture below.<br><img src='images\/341_29_q.jpg'><br>Which of the following is true?","optiona":"P is a Living thing and Q is a Non-Living thing.","optionb":"P is a Non-Living thing and Q is a Living thing.","optionc":"Both P and Q are Living things.","optiond":"Both P and Q are Non-Living things.","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":52.7446,"percent_a":52.7446,"percent_b":14.0811,"percent_c":21.0024,"percent_d":10.5012,"total_students":419},{"Qcode":"6555","Subject":"Science","Class":"4","question_stem":"Which of these foods is rich in proteins?","optiona":"Rice","optionb":"Potatoes","optionc":"Dal","optiond":"Sugar","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":64.9165,"percent_a":10.2625,"percent_b":9.06921,"percent_c":64.9165,"percent_d":14.3198,"total_students":419},{"Qcode":"6557","Subject":"Science","Class":"4","question_stem":"Study the diagram below.<br><img src='images\/341_33_q.jpg'><br>Which of these will happen if the frog population decreases suddenly?","optiona":"The grasshopper population will increase.","optionb":"The grass population will increase.","optionc":"The snake population will increase.","optiond":"The eagle population will decrease.","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":52.7446,"percent_a":52.7446,"percent_b":12.6492,"percent_c":15.0358,"percent_d":17.6611,"total_students":419},{"Qcode":"6558","Subject":"Science","Class":"4","question_stem":"Look at the picture below.<br><img src='images\/341_34_q.jpg'><br>Which of these properties of the stone is being measured?","optiona":"mass","optionb":"volume","optionc":"hardness","optiond":"texture","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":34.6062,"percent_a":25.0597,"percent_b":34.6062,"percent_c":27.2076,"percent_d":11.2172,"total_students":419},{"Qcode":"6560","Subject":"Science","Class":"4","question_stem":"Why do animals need food?","optiona":"To get energy to work and play","optionb":"To grow","optionc":"To protect themselves from diseases","optiond":"All of the above","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":77.5656,"percent_a":14.0811,"percent_b":2.864,"percent_c":3.34129,"percent_d":77.5656,"total_students":419},{"Qcode":"6561","Subject":"Science","Class":"4","question_stem":"Which of these is the hardest?","optiona":"Eraser","optionb":"Cotton","optionc":"Wood","optiond":"Sponge","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":88.7828,"percent_a":1.432,"percent_b":1.67064,"percent_c":88.7828,"percent_d":6.92124,"total_students":419},{"Qcode":"6562","Subject":"Science","Class":"4","question_stem":"Which of these are needed for a seed to grow into a plant?","optiona":"Air, water and warmth","optionb":"Soil, darkness and cold","optionc":"Water, moonlight and cold","optiond":"Air, darkness and warmth","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":64.4391,"percent_a":64.4391,"percent_b":10.5012,"percent_c":13.6038,"percent_d":9.30788,"total_students":419},{"Qcode":"6563","Subject":"Science","Class":"4","question_stem":"Which of these animals lays eggs?","optiona":"Bat","optionb":"Whale","optionc":"Penguin","optiond":"Dolphin","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":58.9499,"percent_a":14.3198,"percent_b":9.06921,"percent_c":58.9499,"percent_d":15.5131,"total_students":419},{"Qcode":"6564","Subject":"Science","Class":"4","question_stem":"Which of these is NOT a function of the stem of a plant?","optiona":"It supports the plant.","optionb":"It carries water from the roots to the leaves.","optionc":"It makes food for the plant.","optiond":"It carries food from the leaves to other parts.","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":44.3914,"percent_a":13.8425,"percent_b":17.4224,"percent_c":44.3914,"percent_d":22.1957,"total_students":419},{"Qcode":"7210","Subject":"Science","Class":"4","question_stem":"A class had a torn umbrella. Which of the following  materials that the teacher gave them, should they  use  to repair the umbrella?<br><img src='images\/342_1_q.jpg'>","optiona":"A piece from an old raincoat","optionb":"A piece of newspaper","optionc":"A piece of cardboard","optiond":"A piece of silk cloth","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":53.4532,"percent_a":53.4532,"percent_b":1.70293,"percent_c":2.93283,"percent_d":41.438,"total_students":1057},{"Qcode":"7211","Subject":"Science","Class":"4","question_stem":"Which of the following lists has only plant eating animals?","optiona":"Cow, elephant, lion, rabbit","optionb":"Deer, cheetah, lion, butterfly","optionc":"Elephant, cow, rabbit, goat","optiond":"Rabbit, vulture, tiger, deer.","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":85.9981,"percent_a":5.01419,"percent_b":4.73037,"percent_c":85.9981,"percent_d":2.93283,"total_students":1057},{"Qcode":"7212","Subject":"Science","Class":"4","question_stem":"What is the dog doing?<br><img src='images\/342_3_q.jpg'>","optiona":"Pulling","optionb":"Bending","optionc":"Sliding","optiond":"Pushing","correct_answer":"A","passage_file":"","group_text":" ","correct_pct":78.3349,"percent_a":78.3349,"percent_b":4.35194,"percent_c":7.56859,"percent_d":8.89309,"total_students":1057},{"Qcode":"7213","Subject":"Science","Class":"4","question_stem":"Shoes do not grow because________________.","optiona":"they cannot move","optionb":"they do not have teeth ","optionc":"they do not breathe","optiond":"they are non-living","correct_answer":"D","passage_file":"","group_text":" ","correct_pct":94.702,"percent_a":1.2299,"percent_b":1.2299,"percent_c":1.89215,"percent_d":94.702,"total_students":1057},{"Qcode":"7214","Subject":"Science","Class":"4","question_stem":"A harmful effect of burning waste material in open spaces is that:","optiona":"It will cause a big fire.","optionb":"It causes air  pollution.","optionc":"It can cause injuries to those standing around.","optiond":"The burnt material cannot be used.","correct_answer":"B","passage_file":"","group_text":" ","correct_pct":56.1968,"percent_a":14.6641,"percent_b":56.1968,"percent_c":13.5289,"percent_d":14.0019,"total_students":1057},{"Qcode":"7215","Subject":"Science","Class":"4","question_stem":"Ram bought a few cone ice creams for his family. On reaching home, he put them in the freezer compartment of his refrigerator. Why did Ram leave the ice creams in the freezer?","optiona":"The freezer can turn water into ice.","optionb":"The freezer is used for making ice creams.","optionc":"The freezer prevents ice cream from melting.","optiond":"The label on the cone ice cream asked him to do so.","correct_answer":"C","passage_file":"","group_text":" ","correct_pct":68.5903,"percent_a":18.9215,"percent_b":5.58184,"percent_c":68.5903,"percent_d":4.91958,"total_students":1057}];
+    
+    // --- UTILITY & INTERACTION LOGIC ---
+
+    function hasImageOptions(item) {
+        const options = [item.optiona, item.optionb, item.optionc, item.optiond];
+        return options.some(opt => opt && opt.includes('<img'));
+    }
+
+    function cleanAndRenderHtml(html) {
+        if (!html) return '';
+        return html;
+    }
+    
+    // --- SELECTION HANDLER ---
+    function handleOptionSelect(qcode, selectedOption) {
+        document.querySelectorAll(`#q-${qcode} .option-container`).forEach(container => {
+            container.classList.remove('selected');
+        });
+        document.querySelector(`#q-${qcode} .option-container[data-option='${selectedOption}']`).classList.add('selected');
+    }
+
+    // --- RENDER LOGIC ---
+    function renderPortal(data) {
+        const questionsContainer = document.getElementById('questionsContainer');
+        questionsContainer.innerHTML = '';
+        document.getElementById('questionCount').textContent = `Displaying ${data.length} Questions`;
+
+        // 1. Group data by passage file (and group text as fallback/supplement)
+        const groups = {};
+        data.forEach(item => {
+            const key = (item.passage_file || '') + '|' + (item.group_text || '');
+            if (!groups[key]) {
+                groups[key] = {
+                    passage_file: item.passage_file,
+                    group_text: item.group_text,
+                    questions: []
+                };
+            }
+            groups[key].questions.push(item);
+        });
+
+        let questionCounter = 0;
+        
+        // 2. Iterate through groups and render
+        Object.keys(groups).forEach((key, index) => {
+            const group = groups[key];
+            const isPassageGroup = (group.passage_file && group.passage_file.trim() !== '') || (group.group_text && group.group_text.trim() !== '');
+
+            // CASE A: Standalone Questions
+            if (!isPassageGroup) {
+                // Enforce 2-column grid layout for standalones
+                questionsContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                questionsContainer.style.gap = '25px'; // Ensure gap for standalone questions
+                group.questions.forEach(item => {
+                    questionsContainer.innerHTML += renderIndividualCard(item);
+                    questionCounter++;
+                });
+                return;
+            }
+
+            // CASE B: Grouped Questions
+            // Ensure container switches to single-column layout so the group card spans full width
+            questionsContainer.style.gridTemplateColumns = '1fr'; 
+            questionsContainer.style.gap = '0'; // Clear gap between non-group elements
+            
+            // Conditional placeholder for passage file content (only if passage_file exists)
+            let passagePlaceholder = '';
+            if (group.passage_file && group.passage_file.trim() !== '') {
+                passagePlaceholder = `
+                    <div class="passage-content-box">
+                        <p style="font-weight: bold; color: var(--danger);">
+                            ⚠️ PASSOUT REQUIRED
+                        </p>
+                        <p>
+                            **Image/File Error:** The browser cannot automatically load the passage file 
+                            <code style="background: #fcf8e3; padding: 1px 4px;">${group.passage_file}</code> directly from your file system due to security settings.
+                        </p>
+                        <p style="margin-top: 10px; font-weight: bold;">
+                            **Action:** Please open the file manually and paste its content here, or use a local web server (e.g., Python's <code style="background: #fcf8e3; padding: 1px 4px;">python -m http.server</code>).
+                        </p>
+                    </div>
+                `;
+            }
+
+            let groupHtml = `
+                <div class="group-card">
+                    <div class="passage-area">
+                        <h2>Context: ${cleanAndRenderHtml(group.group_text).replace(/\^/g, '')}</h2>
+                        ${passagePlaceholder}
+                    </div>
+                    <div class="questions-grid">
+                        ${group.questions.map(item => {
+                            questionCounter++;
+                            return renderIndividualCard(item);
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+            questionsContainer.innerHTML += groupHtml;
+        });
+        
+        // 3. Post-render adjustment for specific questions known to need grid
+        data.forEach(item => {
+            if (hasImageOptions(item)) {
+                const optionsListEl = document.getElementById(`options-list-${item.Qcode}`);
+                if (optionsListEl) {
+                    optionsListEl.classList.add('image-layout');
+                    
+                    // Specific QCode checks for 2x2 grid (if required by image size)
+                    if (item.Qcode === '6527' || item.Qcode === '6533' || item.Qcode === '6541' || item.Qcode === '6544' || item.Qcode === '6559') {
+                         optionsListEl.classList.add('grid-2x2');
+                    }
+                }
+            }
+        });
+    }
+
+    // Helper: Render a single question card
+    function renderIndividualCard(item) {
+        const qcode = item.Qcode;
+        const isImageQuestion = hasImageOptions(item);
+
+        // If it's an image question, it must span the full two columns of its parent grid
+        const cardClass = isImageQuestion ? 'card card-full-width' : 'card';
+        
+        const optionKeys = ['A', 'B', 'C', 'D'];
+        const optionText = {
+            'A': item.optiona,
+            'B': item.optionb,
+            'C': item.optionc,
+            'D': item.optiond
+        };
+
+        let optionsListClass = 'options-list';
+        if (isImageQuestion) {
+            optionsListClass += ' image-layout';
+        }
+        
+        return `
+            <div class="${cardClass}" id="q-${qcode}">
+                <div class="meta-tags">
+                    <span>${item.Subject} &bull; Class ${item.Class}</span>
+                    <span>#${qcode}</span>
+                </div>
+
+                <div class="question-stem html-content">${cleanAndRenderHtml(item.question_stem)}</div>
+
+                <div class="${optionsListClass}" data-qcode="${qcode}" id="options-list-${qcode}">
+                    ${optionKeys.map(key => `
+                        <div class="option-container" 
+                             data-option="${key}" 
+                             onclick="handleOptionSelect('${qcode}', '${key}')">
+                            <label class="option-label">
+                                <span class="option-prefix" id="q-${qcode}-prefix-${key}">${key})</span>
+                                <span class="option-text html-content" id="q-${qcode}-opt-${key}">${cleanAndRenderHtml(optionText[key])}</span>
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div id="stats-panel-${qcode}"></div>
+
+                <div class="card-footer">
+                    <button class="btn-reveal" onclick="revealAnswer('${qcode}', false)">Select the correct option to reveal data</button>
+                    <button class="btn-skip" onclick="revealAnswer('${qcode}', true)">Skip and Reveal</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Logic to reveal answer, calculate colors, and show stats
+    function colorOptionsAndDisplayStats(item, userSelection) {
+        const qcode = item.Qcode;
+        const correctAns = item.correct_answer;
+        const percentages = {
+            'A': item.percent_a,
+            'B': item.percent_b,
+            'C': item.percent_c,
+            'D': item.percent_d
+        };
+        
+        let highestDistractor = null;
+        let maxWrongPct = -1;
+        
+        const distractors = ['A', 'B', 'C', 'D'].filter(key => key !== correctAns);
+        distractors.forEach(key => {
+            const pct = percentages[key];
+            if (pct > maxWrongPct) {
+                maxWrongPct = pct;
+                highestDistractor = key;
+            }
+        });
+        
+        const optionsListEl = document.querySelector(`#q-${qcode} .options-list`);
+        optionsListEl.classList.add('revealed');
+
+        for (const key of ['A', 'B', 'C', 'D']) {
+            const optionEl = document.getElementById(`q-${qcode}-opt-${key}`);
+            const prefixEl = document.getElementById(`q-${qcode}-prefix-${key}`);
+            
+            optionEl.classList.remove('correct', 'highest-distractor', 'wrong');
+            
+            const originalText = item[`option${key.toLowerCase()}`];
+            const percentText = ` (${percentages[key].toFixed(1)}% students)`;
+            optionEl.innerHTML = cleanAndRenderHtml(originalText) + percentText;
+
+            optionEl.closest('.option-container').classList.remove('selected');
+
+            if (key === correctAns) {
+                optionEl.classList.add('correct');
+                prefixEl.style.color = 'var(--success)';
+            } else if (key === highestDistractor) {
+                optionEl.classList.add('highest-distractor');
+                prefixEl.style.color = 'var(--danger)';
+            } else {
+                optionEl.classList.add('wrong');
+                prefixEl.style.color = 'var(--neutral-wrong)';
+            }
+        }
+
+        const statsPanelEl = document.getElementById(`stats-panel-${qcode}`);
+        
+        let userChoiceClass = '';
+        if (userSelection) {
+            userChoiceClass = userSelection === correctAns ? 'correct' : 'incorrect';
+        }
+        
+        statsPanelEl.innerHTML = `
+            <div class="stats-panel">
+                <p class="user-selection">
+                    Your Selection: <span class="user-choice ${userChoiceClass}">${userSelection ? userSelection : 'Skipped'}</span> 
+                    | Correct Answer: <span class="correct-ans-display">${correctAns}</span>
+                </p>
+            </div>
+        `;
+    }
+
+    // Interaction Handlers
+    function revealAnswer(qcode, isSkip) {
+        const cardEl = document.getElementById(`q-${qcode}`);
+        const selectedEl = cardEl.querySelector('.option-container.selected');
+        const item = questionsData.find(q => q.Qcode === qcode);
+
+        let userSelection = null;
+        if (selectedEl) {
+            userSelection = selectedEl.dataset.option;
+        }
+
+        if (!userSelection && !isSkip) {
+            alert("Please select an option before revealing the data.");
+            return;
+        }
+        
+        cardEl.querySelectorAll('.btn-reveal, .btn-skip').forEach(btn => btn.disabled = true);
+        
+        // Show result
+        colorOptionsAndDisplayStats(item, userSelection);
+    }
+
+    // Filter Logic
+    function filterQuestions() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const subj = document.getElementById('subjectFilter').value;
+        const cls = document.getElementById('classFilter').value;
+
+        const filtered = questionsData.filter(item => {
+            // Subject and Class match
+            const matchSubj = (subj === 'all') || (item.Subject === subj);
+            const matchClass = (cls === 'all') || (item.Class === cls);
+            
+            // Keyword match
+            let matchKeyword = true;
+            if (searchTerm) {
+                // Combine relevant fields into a searchable string
+                const textToSearch = [
+                    item.question_stem, 
+                    item.group_text, 
+                    item.Subject,
+                    item.optiona, 
+                    item.optionb, 
+                    item.optionc, 
+                    item.optiond
+                ].join(' ').toLowerCase();
+                
+                matchKeyword = textToSearch.includes(searchTerm);
+            }
+
+            return matchSubj && matchClass && matchKeyword;
+        });
+
+        renderPortal(filtered);
+    }
+
+    // Init
+    function initializePortal() {
+        renderPortal(questionsData);
+    }
+
+    initializePortal();
+
+</script>
+</body>
+</html>
