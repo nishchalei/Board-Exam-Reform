@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Makes a Question Good or Bad?</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    /* ---------- COVER PAGE ---------- */
+    .cover {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cover::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -100px;
+        right: -100px;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .cover::after {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        bottom: -50px;
+        left: -50px;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .cover-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cover h1 {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        animation: fadeInDown 1s ease;
+    }
+
+    .cover p {
+        font-size: 20px;
+        max-width: 700px;
+        margin: 0 auto 40px;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.95);
+        animation: fadeInUp 1s ease;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .subject-buttons {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .subject-buttons button {
+        padding: 16px 32px;
+        font-size: 18px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        background: white;
+        color: #667eea;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .subject-buttons button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.1);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .subject-buttons button:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .subject-buttons button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .content {
+        display: none;
+        padding: 30px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .back-button {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        background: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #667eea;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .tab {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #667eea;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .tab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .tab.active {
+        background: #667eea;
+        color: white;
+        border-color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .subject-section {
+        display: none;
+    }
+
+    .subject-section.active {
+        display: block;
+    }
+
+    /* ---------- QUESTION CARD ---------- */
+    .example {
+        margin-bottom: 40px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        animation: cardSlideIn 0.5s ease;
+    }
+
+    @keyframes cardSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .example:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+    }
+
+    .good-border { 
+        border-left: 8px solid #2e7d32;
+        border-top: 4px solid #2e7d32;
+    }
+    
+    .bad-border { 
+        border-left: 8px solid #d32f2f;
+        border-top: 4px solid #d32f2f;
+    }
+
+    .example-header {
+        padding: 16px 20px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .example-header .type {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .example-header .source {
+        font-size: 14px;
+        color: #666;
+        font-weight: normal;
+    }
+
+    .example-body {
+        display: flex;
+        gap: 30px;
+        padding: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .example-body {
+            flex-direction: column;
+        }
+        .column {
+            width: 100% !important;
+        }
+    }
+
+    .column {
+        flex: 1;
+    }
+
+    h3 {
+        margin: 0 0 16px 0;
+        color: #667eea;
+        font-size: 20px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+    }
+
+    .tags {
+        margin-bottom: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tag {
+        display: inline-block;
+        padding: 6px 12px;
+        font-size: 13px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .good { 
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .bad { 
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .question-text {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 12px 0;
+        border-left: 4px solid #667eea;
+        line-height: 1.8;
+    }
+
+    .explanation-text {
+        line-height: 1.8;
+        color: #444;
+    }
+
+    .explanation-text strong {
+        color: #667eea;
+    }
+
+    ul { 
+        padding-left: 20px;
+        margin: 12px 0;
+    }
+
+    li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+    }
+
+    .highlight-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 4px;
+    }
+
+    .error-box {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 4px;
+        color: #721c24;
+    }
+
+    /* Placeholder message for empty subjects */
+    .placeholder {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .placeholder h2 {
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+
+    .placeholder p {
+        color: #666;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover" id="cover">
+    <div class="cover-content">
+        <h1>📚 What Makes a Question Good or Bad?</h1>
+        <p>
+            Explore real examples from different subjects to understand how question design
+            can either reveal student thinking or obscure it. <br>Dive into actual exam questions
+            and discover what separates effective assessment from poor practice.
+        </p>
+
+        <div class="subject-buttons">
+            <button onclick="openSubject('science')">🔬 Science</button>
+            <button onclick="openSubject('maths')">📐 Maths</button>
+            <button onclick="openSubject('english')">📖 English</button>
+            <button onclick="openSubject('sst')">🌍 Social Studies</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content" id="content">
+    <button class="back-button" onclick="backToCover()">← Back to Home</button>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('science')">🔬 Science</div>
+        <div class="tab" onclick="showTab('maths')">📐 Maths</div>
+        <div class="tab" onclick="showTab('english')">📖 English</div>
+        <div class="tab" onclick="showTab('sst')">🌍 Social Studies</div>
+    </div>
+
+    <!-- SCIENCE -->
+    <div class="subject-section active" id="science">
+
+        <!-- GOOD EXAMPLE 1 -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 1</span>
+                <span class="source">Source: ICSE 2025 Board Paper | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Core Idea</span>
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+
+                    </div>
+                    <div class="question-text">
+                        <p>Curium is a radioactive element with the symbol <sup>96</sup>Cm<sub>247</sub> named in honour of Madam Curie. The graph of number of protons vs number of neutrons for some elements are shown below: 
+</p>
+			<img src="science_q1.png" alt="Protons vs Neutrons Graph">
+
+                        <p style="margin-top: 12px;">
+                            <strong>(a)</strong> Which point on the graph indicates the element Cm? <br>
+                            <strong>(b)</strong> Which point on the graph indicates daughter nucleus after Cm undergoes radioactive decay of 1 α followed by 2 β? <br>
+                            <strong>(c)</strong> State the mass number of the daughter nucleus. 
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question excels because it:</strong></p>
+                        <ul>
+                            <li><strong>Uses an unusual representation:</strong> A graph of protons vs. neutrons is not a format students typically encounter in textbooks, forcing them to apply understanding rather than recall memorized procedures.</li>
+                            <li><strong>Tests a core concept:</strong> Students must apply the relationship <em>Mass number = protons + neutrons</em> to locate the element on the graph.</li>
+                            <li><strong>Requires multi-step reasoning:</strong> In part (b), students must understand how radioactive decay changes particle numbers:
+                                <ul>
+                                    <li>α-particle emission: decreases protons by 2, neutrons by 2</li>
+                                    <li>β⁻ decay: increases protons by 1, mass number unchanged</li>
+                                </ul>
+                            </li>
+                            <li><strong>Has diagnostic value:</strong> Distractors are designed to capture specific misconceptions, such as mixing up proton and neutron numbers or misapplying decay rules.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> The visual representation combined with step-by-step decay calculations tests genuine understanding of nuclear physics concepts.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOD EXAMPLE 2 -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 2</span>
+                <span class="source">Source: Ei ASSET | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Core Idea</span>
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+                        <span class="tag good">✓ Multidisciplinary</span>
+                    </div>
+                    <div class="question-text">
+                        <p>Hydrangea plants develop blue or pink flowers depending on the availability of aluminium from the soil. When the soil is acidic, aluminium is more available to the roots, resulting in blue flowers. When the soil is alkaline, the availability of aluminium decreases, resulting in pink flowers.</p>
+<p style="margin-top: 12px;">The graph below shows the pH of the soil at different sections of a field.</p>
+<div style="display: flex; align-items: center; gap: 20px;"><img src="science_q2.png" alt="pH Graph" style="width: 40%; height: auto;"><div style="width: 60%;"><p>In which section of the field will the flowers on ALL the hydrangea plants definitely be blue in colour and in which section will the flowers on ALL the hydrangea plants definitely be pink in colour?</p></div></div>
+                        
+                         <table width="408"> <tbody> <tr> <td width="75"> <p><strong>Option</strong></p>
+</td>
+<td width="172">
+<p><strong>Blue Flowers</strong></p>
+</td>
+<td width="161">
+<p><strong>Pink Flowers</strong></p>
+</td>
+</tr>
+<tr>
+<td width="75">
+<p>A</p>
+</td>
+<td width="172">
+<p>Section P and Q</p>
+</td>
+<td width="161">
+<p>Section R and S</p>
+</td>
+</tr>
+<tr>
+<td width="75">
+<p>B</p>
+</td>
+<td width="172">
+<p>Section R and S</p>
+</td>
+<td width="161">
+<p>Section P and Q</p>
+</td>
+</tr>
+<tr>
+<td width="75">
+<p>C</p>
+</td>
+<td width="172">
+<p>Section P, Q and S</p>
+</td>
+<td width="161">
+<p>Section R</p>
+</td>
+</tr>
+<tr>
+<td width="75">
+<p>D</p>
+</td>
+<td width="172">
+<p>Section P</p>
+</td>
+<td width="161">
+<p>Section R</p>
+</td>
+</tr>
+</tbody>
+</table>
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question demonstrates excellence through:</strong></p>
+                        <ul>
+                            <li><strong>Authentic real-world context:</strong> Uses an authentic real-life context (hydrangea colour change in soil).</li>
+                            <li><strong>Interdisciplinary integration:</strong> Combines chemistry (pH and aluminium availability) with biology (pigment formation in flowers), mirroring how science works in reality.</li>
+                            <li><strong>Graph interpretation skills:</strong> Instead of being told which sections are acidic or alkaline, students must deduce it from the graph, developing a key scientific skill.</li>
+                            <li><strong>Unfamiliar context:</strong> Not a standard textbook question, so students must reason rather than rely on memorised examples.
+</li>
+                            <li><strong>Meaningful distractors:</strong> Wrong options capture common misconceptions:
+                                <ul>
+                                    <li>Misinterpreting the pH scale (thinking high pH = acidic)</li>
+                                    <li>Failing to distinguish "all plants" from "most plants"</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> Students must reason rather than rely on memorized examples, combining data interpretation with conceptual understanding across disciplines.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 1 -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 1</span>
+                <span class="source">Source: CBSE 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Trivial</span>
+                        <span class="tag bad">✗ Ambiguous</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>The body of human beings works within the pH range of:</strong></p>
+                        <p style="margin-top: 8px;">
+                            A) 6.1 to 6.8<br>
+                            B) 6.5 to 7.3<br>
+                            C) 7.0 to 7.8<br>
+                            D) 7.5 to 8.1
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <div class="error-box">
+                            <strong>Ambiguity:</strong> Different parts of the body have widely different pH values. There is no single value!
+                        </div>
+                        <ul>
+                            <li><strong>Contradicts student knowledge:</strong> Students are explicitly taught that:
+                                <ul>
+                                    <li>The stomach is acidic (pH ~2)</li>
+                                    <li>The small intestine is alkaline (pH ~8)</li>
+                                    <li>Blood is slightly alkaline (pH ~7.4)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Creates logical impossibility:</strong> Students cannot pick any single pH range because no option applies to all body parts.</li>
+                            <li><strong>Zero diagnostic value:</strong> The question provides no insight into student understanding of pH or body chemistry.</li>
+                            <li><strong>Creates misconceptions:</strong> Implies falsely that the human body operates at a single pH range, which is scientifically incorrect.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>Bottom Line:</strong> This question is fundamentally flawed and should not appear on any assessment. It confuses rather than clarifies student understanding.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 2 -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 2</span>
+                <span class="source">Source: CBSE 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Stand-alone questions</span>
+                        <span class="tag bad">✗ Non-functional Context</span>
+                    </div>
+                    <div class="question-text">
+
+                        <p>A person allowed a narrow beam of white light from the sun to enter a dark room through a small aperture and placed a glass prism in its path in such a manner that the beam falls on the face AB of the prism as shown in the figure.<img src="science_q3.png" alt="science_q3"> <br>A screen S is placed on the other side of the prism, facing AC. On turning the prism slowly, a beautiful band of colours is obtained on the screen. It is the spectrum of sunlight.</p>
+<p>(a) Name the phenomenon due to which the prism splits the incident white light into a band of colours.<br>
+
+(b) State the reason for getting a band of seven colours in the above case. <br>
+
+(c) Explain with the help of a labelled ray diagram, an experimental arrangement to show the recombination of the spectrum of white light. 
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <ul>
+                            <li><strong>Defeats the purpose of case-based questions:</strong> Case-based questions are designed to assess higher-order thinking—application, reasoning, interpretation, and connection to real situations. When students can answer without engaging with the context, the format fails entirely.</li>
+                            <li><strong>Non-functional context:</strong> The passage becomes mere decoration—a story added on top rather than an integral part of the solution process.</li>
+                            <li><strong>Wastes cognitive load:</strong> Increases reading burden without adding any cognitive value or diagnostic insight.</li>
+                            <li><strong>Wastes assessment time:</strong> Students spend time reading unnecessary text, reducing time for genuine assessment.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>The Problem:</strong> If the context doesn't influence the solution, it shouldn't be there. Context should scaffold reasoning, not obscure it.
+                        </div>
+                        <p style="margin-top: 12px;"><strong>Better approach:</strong> Either make the context essential to answering the questions, or remove it entirely and ask the questions directly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MATHS -->
+    <div class="subject-section" id="maths">
+        <!-- GOOD EXAMPLE 1 -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 1</span>
+                <span class="source">Source: IGCSE 2025 Board Paper | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Key concept</span>
+                        <span class="tag good">✓ Analytical thinking</span>
+
+                    </div>
+                    <div class="question-text">
+                        <p>A pattern is formed by 3 congruent rectangles. Each rectangle is a rotation of 90&deg; around one vertex of the rectangle next to it. <br> The point <i>A</i> has coordinates (2,5). <br> The point <i>B</i> has coordinates (4,1.5). <br> Work out the coordinates of point <i>C</i> and <i>D.</i><p>
+
+</p>
+			<img src="maths_q1.png" alt="co-ordinate geometry">
+
+                        
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question excels because it:</strong></p>
+                        <ul>
+                            <li><strong>Tests a key concept in coordinate geometry: </strong> Students must determine coordinates of points C and D using only the given coordinates of A and B, while also finding the length and width of the rectangle.</li>
+                            <li><strong>Uses an unfamiliar format: </strong> This is not a problem students typically encounter in textbooks or other resources, forcing them to apply understanding rather than recall procedures.</li>
+                            <li><strong>Requires genuine reasoning:</strong> The question cannot be solved by guessing or recalling a formula. It demands clear understanding of spatial transformations and the coordinate system, encouraging students to think both geometrically and algebraically.
+                            </li>
+                            <li><strong>Tests deeper understanding: </strong> Students must solve the problem without coordinate divisions (grid lines). This tests their true understanding of the coordinate system rather than just visually identifying coordinates.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> By removing the visual scaffold of grid lines, the question reveals whether students truly understand the coordinate system or merely rely on visual pattern matching.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+ <!-- GOOD EXAMPLE 2 -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 2</span>
+                <span class="source">Source: ICSE 2025 Board Paper | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Key concept</span>
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Strong distractors</span>
+
+                    </div>
+                    <div class="question-text">
+                        <p>In the given diagram &#x25B2;ABC ~ &#x25B2;EFG. If &ang;ABC = &ang;EFG = 60&deg;, then the length of the side <strong>FG</strong> is:<br>(a) 15 cm<br>(b) 20 cm<br>(c) 25 cm<br>(d) 30 cm
+</p>
+			<img src="maths_q2.png" alt="triangles">
+
+                        
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+			<p>A simple MCQ that tests the application of similar triangles. Using the given information about triangles ABC & EFG being similar, students are required to identify the corresponding sides, ratio and hence find the measure of FG.</p>
+                        <p><strong>This question excels because it:</strong></p>
+                        <ul>
+			    <li><strong>Well-designed distractors: </strong>Wrong options reflect likely errors and common misconceptions. They are numerically close and reasonable, making them effective at capturing specific misunderstandings.</li>
+                            <li><strong>Tests conceptual understanding: </strong> This question distinguishes between surface-level understanding and genuine comprehension of similarity.</li>
+                            <li><strong>Non-standard visual representation:</strong> The similar triangles are presented tilted, rotated, and oriented differently, breaking away from textbook-style figures and requiring deeper engagement.</li>
+                            <li><strong>Demands visualization skills:</strong> All side measures are not directly aligned. Students must visualize and infer triangle shape and corresponding sides correctly based on angles and orientation. </li>
+                            <li><strong>Prevents algorithmic solving: </strong> The question cannot be solved by simply plugging values into a ratio. Students must first identify corresponding sides, then apply the ratio correctly.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> By presenting triangles in non-standard orientations, the question tests whether students understand the underlying concept of similarity or have merely memorized a visual pattern of "matching up sides."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<!-- BAD EXAMPLE 1 -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 1</span>
+                <span class="source">Source: ICSE 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Error</span>
+                        <span class="tag bad">✗ Ambiguous</span>
+			<span class="tag bad">✗ Multiple answers</span>
+                    </div>
+                    <div class="question-text">
+
+                        <p>In the given graph ABCD is a parallelogram.<img src="maths_q3.png" alt="maths_q3"> <br>Using the graph, answer the following:</p>
+<p>(a) Write the coordinates of ABCD.<br>
+
+(b) Calculate the coordinates of "P", the point of intersection of the diagonals AC and BD.<br>
+
+(c) Find the slope of sides CB and DA and verify that they represent parallel lines.<br>
+(d) Find the equation of the diagonal AC. 
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+			 <div class="error-box">
+                            <strong>Error</strong> : The stated scale is 2 cm = 1 unit, but the axis labeling contradicts this. The graph axis markings suggest 1 cm = 1 unit, causing fundamental confusion.
+                        </div>
+
+                        <ul>
+                            <li><strong>Creates unnecessary cognitive load:</strong> Students might spend significant time trying to reconcile the mismatch between the grid and the scale, especially under exam pressure. This increases anxiety and leads to inconsistent interpretations.</li>
+                            <li><strong>Undermines fair assessment:</strong> Different students may interpret the contradictory information differently, leading to inconsistent scoring that reflects confusion rather than mathematical ability.</li>
+                            <li><strong>Valid intent, poor execution:</strong> While the mathematical intent of finding coordinates, midpoints, slopes, and equations is valid, the contradictory scale introduces ambiguity and creates unnecessary barriers to correct and fair assessment.</li>
+                                                    </ul>
+                        <div class="error-box">
+                            <strong>Bottom line</strong> : Technical errors in diagram preparation make this question fundamentally flawed. A question should never require students to guess which piece of given information is correct.
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<!-- BAD EXAMPLE 2 -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 2</span>
+                <span class="source">Source:ICSE 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Poor distractors</span>
+                        <span class="tag bad">✗ Elimination strategy</span>
+	
+                    </div>
+                    <div class="question-text">
+
+                        <p>In the given diagram, chords AC and BC are equal. In &ang;ACD = 120&deg;, then &ang;AEC is:<br>(a) 30 &deg;<br>(b) 60 &deg;<br>(c) 90 &deg;<br>(d) 120 &deg;</p>
+			<img src="maths_q4.png" alt="maths_q4">
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+			 
+                            
+                        <ul>
+                            <li><strong>Defeats the purpose of the question: </strong> The question tests linear angles, isosceles triangle properties, and cyclic quadrilateral properties. However, it can be solved trivially through visual inspection and elimination.</li>
+                            <li><strong>Visual obviousness undermines assessment: </strong>Since angle AEC appears clearly obtuse in the diagram, options like 30&deg;, 60&deg;, or 90&deg; are obviously incorrect geometrically. Students can arrive at the correct answer just by observing the figure and eliminating impossible options.</li>
+                            <li><strong>No diagnostic value: </strong> The question becomes solvable without any understanding of the mathematical concepts it claims to test—linear angles, isosceles triangles, or cyclic quadrilaterals.</li>
+			   <li><strong>Rewards test-taking skills over knowledge:</strong>Students who are good at elimination strategies can succeed without understanding the underlying geometry, while students who attempt the proper mathematical solution waste valuable time.</li>
+                                                    </ul>
+                        <div class="error-box">
+                            <strong>Bottom line</strong> :  When a geometry question can be solved by visual estimation and elimination rather than mathematical reasoning, it fails as an assessment tool. The diagram should support problem-solving, not replace it.
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+    
+
+
+    <!-- ENGLISH -->
+    <div class="subject-section" id="english">
+        <!-- ENGLISH SECTION - Replace the placeholder with this -->
+
+        <!-- GOOD EXAMPLE 1 - RC FRQ -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 1</span>
+                <span class="source">Source: Cambridge IGCSE First Language English 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+                        <span class="tag good">✓ Unambiguous</span>
+                    </div>
+                    <div class="question-text">
+                        <p style="font-size: 12px;">This story is set some years in the future. A scientist, Lotta, is involved in a research project studying migratory birds called terns.<br><strong> Paragraph 1:</strong> I’m watching when the bird is caught. Her wing clips the hair-thin wire, closing the basket gently over her. I approach, not breathing, reluctant to scare her. She ruffles feathers, a small burst of defiance before my fingers close around her. I have to be quick now, deftly looping the band over her leg. The plastic tightens firmly, securing the lightweight tracker. The tracker blinks once,confirming it’s working. Her heartbeat pounds fast and fragile inside my palm. I place her back in her nest, edging away. She explodes free, swooping at me suddenly, giving a shrill cry.I grin, thrilled. I’ve been out here for days, pecked a dozen times, but have now tagged three terns. My tent was blown into the sea last night. My cheap rental car’s blessedly warm.I check my notes again before setting off: Ennis Malone. Captain of the fishing boat Raven – in the days when there were fish to catch.<br><strong>Paragraph 13:</strong>  Months later, the remote shore ahead is magnificent – but empty. I’d told myself it was over when the signals stopped after the last storm; still somehow I’d hoped to see birds, or something,anything, alive. The boat can go no further, so we continue on foot towards the ridge – the only movement anywhere. My heart breaks and then jumps … because something just flew across the sky. More somethings appear, swooping and soaring. I scramble to the summit and – oh,hundreds of terns smother an expanse of unspoiled ice below. Yet more dance upon the air. Dipping gracefully, diving hungrily, in a bay bubbling and thrashing with a million scales. Ennis reaches me with a low rumble of laughter, just as a huge whale fin crowns the sparkling surface.We gasp. What else is hiding in these clean, untouched waters – this sanctuary?</p>
+                        <p style="margin-top: 12px;"><strong>Question:</strong> Reread paragraphs 1 and 13.</p>
+                        <p style="margin-top: 8px;">
+                            • Paragraph 1 begins 'I'm watching…' and is about the actions of Lotta and the bird.<br>
+                            • Paragraph 13 begins 'Months later…' and is about what Ennis and Lotta discover when they land at the end of their journey.
+                        </p>
+                        <p style="margin-top: 12px;"><strong>Explain how the writer uses language to convey meaning and to create effect in these paragraphs. Choose three examples of words or phrases from each paragraph to support your answer. Your choices should include the use of imagery.</strong></p>
+                        <p style="margin-top: 8px; font-style: italic;">Write about 200 to 300 words. Up to 15 marks are available for the content of your answer.</p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question excels because it:</strong></p>
+                        <ul>
+                            <li><strong>Tests genuine analytical skills:</strong> Students must analyze how writers achieve effects, which involves appreciation of the English language beyond surface-level comprehension.</li>
+                            <li><strong>Uses authentic literary source:</strong> The passage is taken from actual literary writing, exposing students to quality writing and real authorial techniques.</li>
+                            <li><strong>Requires evidence-based analysis:</strong> Students must support their analysis with specific text evidence, ensuring interpretations are grounded and detailed rather than vague or generic.</li>
+                            <li><strong>Explicitly states expectations:</strong> Clear guidelines about number of examples, word count, and requirement to include imagery help students understand exactly what's expected.</li>
+                            <li><strong>Develops critical competencies:</strong> By studying how language shapes meaning and effect, students learn to construct clear, persuasive, and nuanced arguments—essential for effective communication in both academic and real-world contexts.</li>
+                            <li><strong>Checks deep engagement:</strong> The question reveals how deeply a reader has engaged with the text, not just whether they can recall facts.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> This question helps students practice language appreciation—a fundamental skill for becoming effective communicators and critical readers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOD EXAMPLE 2 - Grammar MCQ -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 2</span>
+                <span class="source">Source: Ei ASSET English | Class 10, Summer 2022</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+                        <span class="tag good">✓ Good Distractors</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>The lobster roll is one of the most expensive items on the menu.</strong></p>
+                        <p style="margin-top: 12px;">Which of these rephrases the above sentence correctly?</p>
+                        <p style="margin-top: 8px;">
+                            <strong>A.</strong> No other item on the menu is as expensive as the lobster roll.<br>
+                            <strong>B.</strong> The lobster roll is less expensive than most items on the menu.<br>
+                            <strong>C.</strong> Few other items on the menu are as expensive as the lobster roll.<br>
+                            <strong>D.</strong> Most of the items on the menu are as expensive as the lobster roll.
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question demonstrates excellence through:</strong></p>
+                        <ul>
+                            <li><strong>Tests functional grammar:</strong> Integrates comprehension and logical thinking with grammar, as language is used in real-world contexts, thereby testing functional grammar skills rather than isolated rules.</li>
+                            <li><strong>Requires application, not recall:</strong> Students cannot simply identify or recall a grammar rule—they must apply their understanding of superlative adjectives meaningfully.</li>
+                            <li><strong>Demands reading comprehension:</strong> Answering correctly requires not only grammar knowledge but also reading comprehension and logical thinking to determine which rephrased sentence accurately reflects the original idea.</li>
+                            <li><strong>Well-designed distractors:</strong> Incorrect options capture specific common errors:
+                                <ul>
+                                    <li><strong>Option A:</strong> Overgeneralization (suggests it's THE most expensive)</li>
+                                    <li><strong>Option B:</strong> Reverse comparison error</li>
+                                    <li><strong>Option D:</strong> Misinterpretation of "one of the most"</li>
+                                </ul>
+                            </li>
+                            <li><strong>Reveals true understanding:</strong> The question distinguishes between students who genuinely understand superlatives and those who have only memorized patterns.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> Effective grammar questions test how language works in context, not isolated rules. This mirrors real-world communication where grammar serves meaning.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 1 - RC MCQ -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 1</span>
+                <span class="source">Source: Goa Board Paper | Class 10, 2024-25</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Trivial</span>
+                        <span class="tag bad">✗ Familiar</span>
+                        <span class="tag bad">✗ Poor Distractors</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>Paragraph 1 and 2:<br></strong> Loudspeakers are a great nuisance. They spread noise pollution which affects  human nerves and can make a person, especially infant, deaf or perhaps  even dumb.  
+No doubt, we have several other agents that spread noise pollution such as  horns of motor vehicles, buzzers and hooters of factories, noises of people in  market, high volume of TV and radio sets, jugging sounds of tractors,  scooters and generators, etc. but the blaring of loudspeakers are the most 
+obnoxious of them all.</em></p>
+                        <p style="margin-top: 12px;"><strong>Question:</strong> What kind of pollution is caused by loudspeakers?</p>
+                        <p style="margin-top: 8px;">
+                            a) Air pollution<br>
+                            b) Noise pollution<br>
+                            c) Water pollution<br>
+                            d) Soil pollution
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <div class="error-box">
+                            <strong>Problem:</strong> This is a locate-and-match exercise, not genuine reading comprehension. The answer appears verbatim in the first line of the passage.
+                        </div>
+                        <ul>
+                            <li><strong>No comprehension required:</strong> Students can answer by simply scanning for the word "pollution" near "loudspeakers"—no understanding of the passage needed.</li>
+                            <li><strong>Answerable without the passage:</strong> Most students already know loudspeakers cause noise pollution from general knowledge, making the passage unnecessary.</li>
+                            <li><strong>Focuses on obvious detail:</strong> The question tests a single, trivial fact stated in the very first line, requiring no inference or analysis.</li>
+                            <li><strong>Poor distractors:</strong> Air, water, and soil pollution are not mentioned anywhere in the passage, making them implausible and ineffective at diagnosing misconceptions.</li>
+                            <li><strong>Overly familiar context:</strong> The topic of noise pollution from loudspeakers is clichéd and unrelatable to Class 10 students, lacking authenticity.</li>
+                            <li><strong>Missing source attribution:</strong> The passage source is not mentioned, undermining authenticity and credibility.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>Bottom Line:</strong> This question tests scanning ability, not reading comprehension. It wastes students' time and provides no diagnostic value about their understanding.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 2 - Grammar FR -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 2</span>
+                <span class="source">Source: Kerala Board Paper | Class 10, 2024-25</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Technical</span>
+                        <span class="tag bad">✗ Superficial</span>
+                        <span class="tag bad">✗ Inauthentic</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>Read the following statements and identify the Noun Phrase in the subject position in each:</strong></p>
+                        <p style="margin-top: 12px;">
+                            <strong>A)</strong> The life of Vanka represents the plight of orphans around the world.<br>
+                            <strong>B)</strong> The fierce battle between the mongoose and the cobra was keenly watched by the boy.
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <ul>
+                            <li><strong>Misaligned with purpose of grammar:</strong> Noun phrases exist to make descriptions richer and maintain sentence construction rules. A mechanical identification task completely misses this purpose.</li>
+                            <li><strong>Tests superficial knowledge:</strong> The question doesn't reveal whether students understand how noun phrases function in real-life context—only whether they can label parts of speech.</li>
+                            <li><strong>Leads students to the answer:</strong> By specifying "in the subject position," the question essentially defines what a noun phrase is, reducing the cognitive demand significantly.</li>
+                            <li><strong>Inauthentic context:</strong> The sentences are taken from literature texts students have studied, making this a contrived exercise rather than authentic language use.</li>
+                            <li><strong>No real-world relevance:</strong> Proficient English users never need to consciously identify noun phrases in daily communication, making this an academic exercise disconnected from actual language competency.</li>
+                            <li><strong>Doesn't test functional understanding:</strong> Students could correctly identify the noun phrases without understanding why writers use them or how they enhance meaning.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>Bottom Line:</strong> Grammar questions should test how students use and understand language in context, not their ability to label sentence parts. This mechanical approach promotes rote learning over genuine language competency.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOCIAL SCIENCE -->
+    <div class="subject-section" id="sst">
+        <!-- SOCIAL SCIENCE SECTION - Replace the placeholder with this -->
+
+        <!-- GOOD EXAMPLE 1 - Geography MCQ -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 1</span>
+                <span class="source">Source: Ei ASSET Social Science | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+                        <span class="tag good">✓ Key concept</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>The table below shows land use percentages in four countries. Which of the following MOST LIKELY shows land use in India?</strong></p>
+                        <p> <img src/p>
+                        <p style="margin-top: 12px;">
+                            <strong>A.</strong> Agricultural: 76.1% | Forest: 1.5% | Other: 22.4%<br>
+                            <strong>B.</strong> Agricultural: 12.5% | Forest: 68.5% | Other: 19%<br>
+                            <strong>C.</strong> Agricultural: 11.4% | Forest: 1.1% | Other: 87.5%<br>
+                            <strong>D.</strong> Agricultural: 60.5% | Forest: 23.1% | Other: 16.4%
+                        </p>
+			<p><i>Note: Other includes permanent meadows and pastures, built-on areas, roads, barren land, etc.</i></p>
+                
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question excels because it:</strong></p>
+                        <ul>
+                            <li><strong>Requires application, not recall:</strong> Instead of asking students to recall a single fact, the question requires them to apply conceptual knowledge about India's physical environment, agricultural dependency, and forest cover.</li>
+                            <li><strong>Tests data interpretation:</strong> Students must interpret the table, compare patterns, and make a reasoned judgment—core competencies across Class 10 Geography curricula and NEP-aligned skills.</li>
+                            <li><strong>Meaningfully constructed distractors:</strong> Each incorrect option represents a different type of country:
+                                <ul>
+                                    <li><strong>Option A:</strong> Extremely high agricultural land, negligible forest (arid/desert economies)</li>
+                                    <li><strong>Option B:</strong> Very high forest cover (heavily wooded countries)</li>
+                                    <li><strong>Option C:</strong> Vast "other" land (tundra/desert/urban nations)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Diagnoses misconceptions:</strong> Wrong answers reveal specific misunderstandings, such as assuming India has extremely high agriculture or very low forest cover, not just memory gaps.</li>
+                            <li><strong>Accessible yet thoughtful:</strong> Students must recognize approximate proportions familiar from their syllabus (India has ~55–60% agricultural land and ~20–24% forest cover) and choose the most reasonable match.</li>
+                            <li><strong>Competency-based assessment:</strong> Tests judgment and reasoning, not mere memorization—aligning with modern assessment goals.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> This question develops data interpretation skills while testing geographical understanding—preparing students for real-world analysis of environmental and economic data.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOD EXAMPLE 2 - History FRQ -->
+        <div class="example good-border">
+            <div class="example-header">
+                <span class="type">✓ GOOD EXAMPLE 2</span>
+                <span class="source">Source: CISCE History & Civics 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        
+                        <span class="tag good">✓ Unfamiliar</span>
+                        <span class="tag good">✓ Authentic</span>
+                        <span class="tag good">✓ Core Idea</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>Context:</strong> Look at the given picture and answer the questions that follows:</p>
+                        <p><img src="SS_q1.png" alt="SS_q1">
+                        <p style="margin-top: 8px;">
+                            Identify the incident depicted in the image.Which Gandhian movement did it lead to?
+                   
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Good</h3>
+                    <div class="explanation-text">
+                        <p><strong>This question demonstrates excellence through:</strong></p>
+                        <ul>
+                            <li><strong>Uses powerful visual stimulus:</strong> By grounding the task in an image rather than direct recall, the question encourages students to observe, identify, connect, and explain—aligning with modern history education goals.</li>
+                            <li><strong>Tests cause-and-effect understanding:</strong> Students must recognize the incident and link it to the Non-Cooperation Movement that followed, requiring understanding of historical relationships—a core analytical skill.</li>
+                            <li><strong>Image supports without revealing:</strong> The visual cue makes the question accessible and engaging while maintaining cognitive demand—students still need to explain significance and consequences.</li>
+                            <li><strong>Focuses on significance, not trivia:</strong> Instead of asking when or where, the question focuses on why the event mattered, how it shaped nationalist sentiment, and how it influenced Gandhi's political strategies.</li>
+                            <li><strong>Encourages historical thinking:</strong> Students must interpret the event's importance and explain its impact, demonstrating higher-order thinking beyond memorization.</li>
+                            <li><strong>Diagnostic value:</strong> The question reveals whether students understand why events shape movements—not just what happened—helping teachers identify depth of understanding.</li>
+                            <li><strong>Competency-based assessment:</strong> Requires explanation and reasoning, aligning with modern assessment frameworks that emphasize understanding over listing facts.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Insight:</strong> Visual stimuli in history questions encourage students to engage with evidence and practice historical interpretation—skills essential for understanding how the past shapes the present.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 1 - Civics MCQ -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 1</span>
+                <span class="source">Source: CBSE Board Paper | Class 10, 2025</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Trivial</span>
+                        <span class="tag bad">✗ Poor Distractors</span>
+                        <span class="tag bad">✗ Too Easy</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>Which one of the following organisations has its headquarter in Brussels?</strong></p>
+                        <p style="margin-top: 12px;">
+                            <strong>A.</strong> United Nations Organisation<br>
+                            <strong>B.</strong> European Union<br>
+                            <strong>C.</strong> Non-Alignment Movement<br>
+                            <strong>D.</strong> South Asian Association for Regional Co-operation
+                        </p>
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <div class="error-box">
+                            <strong>Problem:</strong> This question tests pure memorization of a trivial fact without any conceptual understanding or real-world context.
+                        </div>
+                        <ul>
+                            <li><strong>No conceptual value:</strong> The physical location of UN headquarters is not conceptually important and doesn't deepen understanding of what the UN does, why it was formed, or how it influences global cooperation.</li>
+                            <li><strong>Not curriculum-aligned:</strong> Class 10 syllabi across boards emphasize understanding international organizations' functions and significance, not memorizing where their offices are located.</li>
+                            <li><strong>Poor diagnostic value:</strong> Distractors don't reveal meaningful misconceptions—students who answer incorrectly aren't demonstrating misunderstanding of the UN, just lack of memorization.</li>
+                            <li><strong>No reasoning required:</strong> The question doesn't encourage interpretation or use any stimulus (map, organizational logo, or functional description) that could support higher-order thinking.</li>
+                            <li><strong>Binary outcome:</strong> Students either know the fact or they guess—there's no middle ground where partial understanding can be demonstrated.</li>
+                            <li><strong>Promotes rote learning:</strong> Questions like this encourage students to memorize isolated facts rather than understand systems, relationships, and significance.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>Bottom Line:</strong> Assessment should focus on understanding international organizations' roles and impact, not the administrative locations of their headquarters. This question has zero diagnostic or educational value.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAD EXAMPLE 2 - History FRQ -->
+        <div class="example bad-border">
+            <div class="example-header">
+                <span class="type">✗ POOR EXAMPLE 2</span>
+                <span class="source">Source: Karnataka Board Paper 2025 | Class 10</span>
+            </div>
+            <div class="example-body">
+                <div class="column">
+                    <h3>Question</h3>
+                    <div class="tags">
+                        <span class="tag bad">✗ Trivial</span>
+                        <span class="tag bad">✗ Too Easy</span>
+                        <span class="tag bad">✗ No Context</span>
+                    </div>
+                    <div class="question-text">
+                        <p><strong>Where is the Teen Murthi Haifa Chowk located?</strong></p>
+                        
+                    </div>
+                </div>
+                <div class="column">
+                    <h3>Why This Question Is Bad</h3>
+                    <div class="explanation-text">
+                        <p><strong>Critical Flaws:</strong></p>
+                        <div class="error-box">
+                            <strong>Problem:</strong> This free-response question wastes the format on a one-word factual answer that requires no explanation, reasoning, or analysis.
+                        </div>
+                        <ul>
+                            <li><strong>Misuse of free-response format:</strong> Free-response questions in Social Science should prompt students to explain, analyze, or interpret—not produce a single factual detail.</li>
+                            <li><strong>No conceptual engagement:</strong> The question requires recalling the location of a landmark without any context, conceptual value, or linkage to curriculum's core ideas.</li>
+                            <li><strong>Doesn't reveal thinking:</strong> Teachers cannot uncover student understanding or identify misconceptions from a one-word location answer.</li>
+                            <li><strong>Not curriculum-aligned:</strong> Class 10 learning outcomes focus on understanding significant historical events, contributions of leaders, constitutional principles, or geographic processes—not memorizing isolated landmark locations.</li>
+                           
+                            <li><strong>Zero diagnostic value:</strong> The question doesn't help assess whether students understand any important historical, civic, or geographic concept.</li>
+                        </ul>
+                        <div class="error-box">
+                            <strong>Bottom Line:</strong> Free-response questions are valuable assessment tools when they reveal student thinking. Wasting them on one-word factual answers is poor assessment design. If the landmark's significance matters, ask students to explain that—not just name a city.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+<script>
+function openSubject(subject) {
+    document.getElementById("cover").style.display = "none";
+    document.getElementById("content").style.display = "block";
+    showTab(subject);
+}
+
+function backToCover() {
+    document.getElementById("content").style.display = "none";
+    document.getElementById("cover").style.display = "flex";
+}
+
+function showTab(subject) {
+    // Hide all sections
+    document.querySelectorAll(".subject-section").forEach(s => s.classList.remove("active"));
+    // Deactivate all tabs
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+
+    // Show selected section
+    document.getElementById(subject).classList.add("active");
+
+    // Activate corresponding tab
+    document.querySelectorAll(".tab").forEach(tab => {
+        if (tab.textContent.toLowerCase().includes(subject) || 
+            (subject === 'sst' && tab.textContent.toLowerCase().includes('social'))) {
+            tab.classList.add("active");
+        }
+    });
+
+    // Scroll to top of content
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
